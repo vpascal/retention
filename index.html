@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js" charset="utf-8" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js" charset="utf-8" type="text/javascript">
+    </script>
     <script src="sankey.js"></script>
+
 </head>
 
 <style>
@@ -16,26 +18,26 @@
         fill-opacity: .9;
         shape-rendering: crispEdges;
     }
-    
+
     .node text {
         pointer-events: none;
         text-shadow: 0 1px 0 #fff;
     }
-    
+
     .link {
         fill: none;
         stroke: #000;
         stroke-opacity: .05;
     }
-    
+
     .link:hover {
         stroke-opacity: .25;
     }
-    
+
     svg {
         position: absolute;
     }
-    
+
     canvas {
         position: absolute;
     }
@@ -53,14 +55,14 @@
                 bottom: 6,
                 left: 1
             },
-            width = 970 - margin.left - margin.right,
+            width = 1000 - margin.left - margin.right,
             height = 400 - margin.top - margin.bottom;
 
         var formatNumber = d3.format(",.0f"),
-            format = function(d) {
+            format = function (d) {
                 return formatNumber(d) + "%";
             },
-            color = d3.scale.category10();
+            color = d3.scale.category10().range(['#A09AD9', '#EF6543']);
 
         var svg = d3.select("svg")
             .attr("width", width + margin.left + margin.right)
@@ -76,7 +78,7 @@
         var path = sankey.link();
         var freqCounter = 1;
 
-        d3.json("data.json", function(energy) {
+        d3.json("data.json", function (energy) {
 
             sankey
                 .nodes(energy.nodes)
@@ -89,15 +91,15 @@
                 .append("path")
                 .attr("class", "link")
                 .attr("d", path)
-                .style("stroke-width", function(d) {
+                .style("stroke-width", function (d) {
                     return Math.max(1, d.dy);
                 })
-                .sort(function(a, b) {
+                .sort(function (a, b) {
                     return b.dy - a.dy;
                 });
 
             link.append("title")
-                .text(function(d) {
+                .text(function (d) {
                     return d.source.name + " → " + d.target.name + "\n" + format(d.value);
                 });
 
@@ -106,45 +108,81 @@
                 .enter()
                 .append("g")
                 .attr("class", "node")
-                .attr("transform", function(d) {
+                .attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 })
-                .call(function() {
+                .call(function () {
                     manualLayout();
                 });
 
             node.append("rect")
-                .attr("height", function(d) {
+                .attr("height", function (d) {
                     return d.dy;
                 })
                 .attr("width", sankey.nodeWidth())
-                .style("fill", function(d) {
+                .style("fill", function (d) {
                     return d.color = color(d.name.replace(/ .*/, ""));
+                })
+                .attr('class', function (d) {
+                    return d.color.replace(/#/, "");
                 })
                 .style("stroke", "none");
 
             node.append("text")
                 .attr("x", -6)
-                .attr("y", function(d) {
-                    return d.dy / 2;
-                })
+                .attr("y", 11)
                 .attr("dy", ".35em")
                 .attr("text-anchor", "end")
                 .attr("transform", null)
-                .text(function(d) {
+                .text(function (d) {
                     return d.name
                 })
+                .style('font-family', 'monospace')
+                .style('font-weight', 'bold')
                 .attr("x", 5 + sankey.nodeWidth())
                 .attr("text-anchor", "start");
 
-            var linkExtent = d3.extent(energy.links, function(d) {
+            // this  block adds text element to the dropoff nodes
+
+            dropoff = d3.selectAll('.EF6543');
+            g = dropoff.select(function () {
+                return this.parentNode;
+            });
+
+            g.append('text')
+                .text(function (d) {
+                    return d.value;
+                })
+                .style('font-family', 'monospace')
+                .style('font-weight', 'bold')
+                .attr("x", 2)
+                .attr('y', -4);
+
+            // this block add text element to the retention nodes
+
+            retention = d3.selectAll('.A09AD9');
+            k = retention.select(function () {
+                return this.parentNode;
+            });
+
+            k.append('text')
+                .text(function (d) {
+                    return d.value;
+                })
+                .style('font-family', 'monospace')
+                .style('font-weight', 'bold')
+                .attr("x", 3)
+                .attr('y', 15);
+
+            // animation
+            var linkExtent = d3.extent(energy.links, function (d) {
                 return d.value
             });
 
             var frequencyScale = d3.scale.linear().domain(linkExtent).range([0.05, 1]);
             var particleSize = d3.scale.linear().domain(linkExtent).range([1, 5]);
 
-            energy.links.forEach(function(link) {
+            energy.links.forEach(function (link) {
                 link.freq = frequencyScale(link.value);
                 link.particleSize = 2.5;
                 link.particleColor = d3.scale.linear().domain([0, 1])
@@ -156,13 +194,13 @@
 
             function tick(elapsed, time) {
 
-                particles = particles.filter(function(d) {
+                particles = particles.filter(function (d) {
                     return d.current < d.path.getTotalLength()
                 });
 
                 d3.selectAll("path.link")
                     .each(
-                        function(d) {
+                        function (d) {
                             //        if (d.freq < 1) {
                             var offset = (Math.random() - .5) * d.dy;
                             if (Math.random() < d.freq) {
@@ -202,8 +240,10 @@
                     particles[x].current = currentTime * 0.15;
                     var currentPos = particles[x].path.getPointAtLength(particles[x].current);
                     context.beginPath();
-                    context.fillStyle = particles[x].link.particleColor(particles[x].current / particles[x].path.getTotalLength());
-                    context.arc(currentPos.x, currentPos.y + particles[x].offset, particles[x].link.particleSize, 0, 2 * Math.PI);
+                    context.fillStyle = particles[x].link.particleColor(particles[x].current / particles[x].path
+                        .getTotalLength());
+                    context.arc(currentPos.x, currentPos.y + particles[x].offset, particles[x].link
+                        .particleSize, 0, 2 * Math.PI);
                     context.fill();
                 }
             }

@@ -2,13 +2,13 @@
     "nodes": [
         { "node": 0, "name": "Year 1" },
         { "node": 1, "name": "Year 2" },
-        { "node": 2, "name": "Drop Year 1" },
+        { "node": 2, "name": "Dropout Year 1" },
         { "node": 3, "name": "Year 3" },
-        { "node": 4, "name": "Drop Year 2" },
+        { "node": 4, "name": "Dropout Year 2" },
         { "node": 5, "name": "Year 4" },
-        { "node": 6, "name": "Drop Year 3" },
+        { "node": 6, "name": "Dropout Year 3" },
         { "node": 7, "name": "Year 5" },
-        { "node": 8, "name": "Drop Year 4" }
+        { "node": 8, "name": "Dropout Year 4" }
 
 
     ],
