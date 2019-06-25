@@ -8,22 +8,24 @@
         { "node": 5, "name": "Year 4" },
         { "node": 6, "name": "Dropout Year 3" },
         { "node": 7, "name": "Year 5" },
-        { "node": 8, "name": "Dropout Year 4" }
+        { "node": 8, "name": "Dropout Year 4" },
+        { "node": 9, "name": "Graduated" }
 
 
     ],
     "links": [
-        { "source": 0, "target": 1, "value": 69.4 },
-        { "source": 0, "target": 2, "value": 30.6 },
+        { "source": 0, "target": 1, "value": 79.5 },
+        { "source": 0, "target": 2, "value": 20.5 },
 
-        { "source": 1, "target": 3, "value": 56.1 },
-        { "source": 1, "target": 4, "value": 13.3 },
+        { "source": 1, "target": 3, "value": 75.0 },
+        { "source": 1, "target": 4, "value": 4.5 },
 
-        { "source": 3, "target": 5, "value": 50.4 },
-        { "source": 3, "target": 6, "value": 5.7 },
+        { "source": 3, "target": 5, "value": 69.7 },
+        { "source": 3, "target": 6, "value": 5.3 },
 
-        { "source": 5, "target": 7, "value": 13.6 },
-        { "source": 5, "target": 8, "value": 36.8 }
+        { "source": 5, "target": 7, "value": 20.1 },
+        { "source": 5, "target": 8, "value": 9.6 },
+        { "source": 5, "target": 9, "value": 40.0 }
 
     ]
 }
