@@ -20,26 +20,26 @@
         fill-opacity: .9;
         shape-rendering: crispEdges;
     }
-    
+
     .node text {
         pointer-events: none;
         text-shadow: 0 1px 0 #fff;
     }
-    
+
     .link {
         fill: none;
         stroke: #000;
         stroke-opacity: .05;
     }
-    
+
     .link:hover {
         stroke-opacity: .25;
     }
-    
+
     svg {
         position: absolute;
     }
-    
+
     canvas {
         position: absolute;
     }
@@ -61,7 +61,7 @@
             height = 400 - margin.top - margin.bottom;
 
         var formatNumber = d3.format(",.0f"),
-            format = function(d) {
+            format = function (d) {
                 return formatNumber(d) + "%";
             },
             color = d3.scale.category10().range(['#A09AD9', '#EF6543', '#a2e8c8']);
@@ -80,7 +80,7 @@
         var path = sankey.link();
         var freqCounter = 1;
 
-        d3.json("data.json", function(energy) {
+        d3.json("data.json", function (energy) {
 
             sankey
                 .nodes(energy.nodes)
@@ -93,15 +93,15 @@
                 .append("path")
                 .attr("class", "link")
                 .attr("d", path)
-                .style("stroke-width", function(d) {
+                .style("stroke-width", function (d) {
                     return Math.max(1, d.dy);
                 })
-                .sort(function(a, b) {
+                .sort(function (a, b) {
                     return b.dy - a.dy;
                 });
 
             link.append("title")
-                .text(function(d) {
+                .text(function (d) {
                     return d.source.name + " → " + d.target.name + "\n" + format(d.value);
                 });
 
@@ -110,22 +110,22 @@
                 .enter()
                 .append("g")
                 .attr("class", "node")
-                .attr("transform", function(d) {
+                .attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 })
-                .call(function() {
+                .call(function () {
                     manualLayout();
                 });
 
             node.append("rect")
-                .attr("height", function(d) {
+                .attr("height", function (d) {
                     return d.dy;
                 })
                 .attr("width", sankey.nodeWidth())
-                .style("fill", function(d) {
+                .style("fill", function (d) {
                     return d.color = color(d.name.replace(/ .*/, ""));
                 })
-                .attr('class', function(d) {
+                .attr('class', function (d) {
                     return d.color.replace(/#/, "");
                 })
                 .style("stroke", "none");
@@ -136,7 +136,7 @@
                 .attr("dy", ".35em")
                 .attr("text-anchor", "end")
                 .attr("transform", null)
-                .text(function(d) {
+                .text(function (d) {
                     return d.name
                 })
                 .style('font-family', 'monospace')
@@ -147,14 +147,14 @@
             // this  block adds text element to the dropoff nodes
 
             dropoff = d3.selectAll('.EF6543');
-            g = dropoff.select(function() {
+            g = dropoff.select(function () {
                 return this.parentNode;
             });
 
 
 
             g.append('text')
-                .text(function(d) {
+                .text(function (d) {
                     //return d.value;
                     var temp = new CountUp(this, 0, d.value, 1);
                     setTimeout(temp.start, 1750);
@@ -169,15 +169,16 @@
             // this block add text element to the retention nodes
 
             retention = d3.selectAll('.A09AD9');
-            k = retention.select(function() {
+            k = retention.select(function () {
                 return this.parentNode;
             });
 
             k.append('text')
-                .text(function(d) {
+                .text(function (d) {
                     //return d.value;
                     var temp = new CountUp(this, 0, d.value, 1);
                     setTimeout(temp.start, 1750);
+
                 })
                 .style('font-family', 'monospace')
                 .style('font-weight', 'bold')
@@ -185,33 +186,40 @@
                 .attr('y', 15);
 
             // animation
-            var linkExtent = d3.extent(energy.links, function(d) {
+            var linkExtent = d3.extent(energy.links, function (d) {
                 return d.value
             });
 
             var frequencyScale = d3.scale.linear().domain(linkExtent).range([0.05, 1]);
             var particleSize = d3.scale.linear().domain(linkExtent).range([1, 5]);
 
-            energy.links.forEach(function(link) {
+            energy.links.forEach(function (link) {
+                // number of points in each path
                 link.freq = frequencyScale(link.value);
                 link.particleSize = 2.5;
                 link.particleColor = d3.scale.linear().domain([0, 1])
                     .range([link.source.color, link.target.color]);
             })
 
-            var t = d3.timer(tick, 100);
+            var t = d3.timer(tick);
+            // var t = d3.timer(function(elapsed) {
+            //     tick(elapsed);
+            //    if (elapsed > 4000) t.stop();
+            //      }, 150);
+
             var particles = [];
 
             function tick(elapsed, time) {
 
-                particles = particles.filter(function(d) {
+                particles = particles.filter(function (d) {
                     return d.current < d.path.getTotalLength()
                 });
 
                 d3.selectAll("path.link")
                     .each(
-                        function(d) {
+                        function (d) {
                             //        if (d.freq < 1) {
+                            //spread of points within path;    
                             var offset = (Math.random() - .5) * d.dy;
                             if (Math.random() < d.freq) {
                                 var length = this.getTotalLength();
